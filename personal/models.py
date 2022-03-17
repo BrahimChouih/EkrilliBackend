@@ -11,8 +11,6 @@ class Favorite(models.Model):
 
     def __str__(self):
         return self.apartment
-    
-
 
 
 class History(models.Model):
@@ -23,3 +21,5 @@ class History(models.Model):
     def __str__(self):
         return self.apartment
 
+    class Meta:
+        ordering = ['-created_at']

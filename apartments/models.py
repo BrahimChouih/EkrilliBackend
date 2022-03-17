@@ -85,3 +85,6 @@ class Rate(models.Model):
 
     def __str__(self):
         return self.id
+
+    class Meta:
+        ordering = ['-created_at']
