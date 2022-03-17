@@ -81,7 +81,7 @@ class Rate(models.Model):
     user = models.ForeignKey(to=Account, on_delete=models.CASCADE)
     comment = models.TextField(max_length=2000, default='')
     stars = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.id
-    
