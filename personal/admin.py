@@ -17,22 +17,22 @@ def userUrl(user):
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     pass
-    # list_display = ('id', 'title', 'owner_', 'category', 'create_at')
-    # list_display_links = ('id', 'title')
-    # list_filter = ('category',)
-    # search_fields = ('owner__email', 'title')
+    # list_display = ('id',)
+    # list_display_links = ('id',)
+    # list_filter = ('city',)
+    # search_fields = ('sender__email',)
 
     # def owner_(self, obj):
-    #     return userUrl(obj.owner)
+    #     return userUrl(obj.semder)
 
 
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
     pass
-    # list_display = ('id', 'title', 'owner_', 'category', 'create_at')
-    # list_display_links = ('id', 'title')
-    # list_filter = ('category',)
-    # search_fields = ('owner__email', 'title')
+    # list_display = ('id',)
+    # list_display_links = ('id',)
+    # list_filter = ('city',)
+    # search_fields = ('sender__email',)
 
     # def owner_(self, obj):
-    #     return userUrl(obj.owner)
+    #     return userUrl(obj.semder)

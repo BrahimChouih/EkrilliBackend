@@ -30,11 +30,11 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.apartment.title
+        return self.sender.username + ' with '+self.receiver.username
 
     class Meta:
         ordering = ['-created_at']
-    
+
     def save(self, *args, **kwargs):
         if(not self.id):
             self.create_at = timezone.now()
@@ -61,7 +61,7 @@ class Message(models.Model):
         elif friends[0].last_message == None or friends[0].last_message.id != self.id:
             friends[0].last_message = self
             friends[0].save()
-      
+
         return self
 
     def delete(self, *args, **kwargs):

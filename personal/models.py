@@ -10,7 +10,7 @@ class Favorite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.apartment
+        return self.user.username +" --> "+ self.apartment.title
 
 
 class History(models.Model):
@@ -19,7 +19,7 @@ class History(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.apartment
+        return self.user.username +" --> "+ self.apartment.title
 
     class Meta:
         ordering = ['-created_at']

@@ -42,8 +42,8 @@ class Apartment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.titel
-    
+        return self.title
+
     def delete(self, *args, **kwargs):
         try:
             images = Picture.objects.filter(gig_id=self.id)
@@ -68,8 +68,6 @@ class Picture(models.Model):
 
     def __str__(self):
         return self.apartment.title + ' id : ' + str(self.id)
-    
-    
 
 
 class City(models.Model):
@@ -95,11 +93,11 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return self.id
+        return self.user.username + " on "+self.apartment.title
 
     class Meta:
         ordering = ['-created_at']
-    
+
     def save(self, *args, **kwargs):
         self.apartment.stars += self.stars
         self.apartment.numReviews += 1
