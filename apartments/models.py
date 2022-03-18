@@ -15,7 +15,7 @@ def uploadImage(instance, fileName):
             pass
         extesion = fileName.split('.')[1]
         name = '%s-%s' % (datetime.now().date(), datetime.now().time())
-        return 'gig/%s_%s.%s' % (instance.apartment.title, name, extesion)
+        return 'apartments/%s_%s.%s' % (instance.apartment.title, name, extesion)
     elif type(instance) == City:
         # extesion = fileName.split('.')[1]
         try:
@@ -28,8 +28,8 @@ def uploadImage(instance, fileName):
 
 
 class Apartment(models.Model):
-    title = models.CharField(max_length=150, null=False)
     owner = models.ForeignKey(to=Account, null=False, on_delete=models.CASCADE)
+    title = models.CharField(max_length=150, null=False)
     description = models.TextField(max_length=2000, default='')
     price_per_day = models.FloatField(default=0.0, null=True)
     city = models.ForeignKey(to='City', null=False,
@@ -38,11 +38,20 @@ class Apartment(models.Model):
     location_longitude = models.FloatField(default=0.0, null=True)
     isAvailable = models.BooleanField(default=True)
     stars = models.FloatField(default=0.0, null=True)
-    numRaters = models.IntegerField(default=0, null=True)
+    numReviews = models.IntegerField(default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.titel
+    
+    def delete(self, *args, **kwargs):
+        try:
+            images = Picture.objects.filter(gig_id=self.id)
+            for img in images:
+                img.delete()
+        except:
+            pass
+        return super().delete(*args, **kwargs)
 
 
 class Picture(models.Model):
@@ -52,13 +61,15 @@ class Picture(models.Model):
 
     def delete(self, *args, **kwargs):
         try:
-            self.image.delete()
+            self.picture.delete()
         except:
             pass
         return super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.apartment.title + ' id : ' + str(self.id)
+    
+    
 
 
 class City(models.Model):
@@ -76,7 +87,7 @@ class City(models.Model):
         return self.name
 
 
-class Rate(models.Model):
+class Rating(models.Model):
     apartment = models.ForeignKey(to=Apartment, on_delete=models.CASCADE)
     user = models.ForeignKey(to=Account, on_delete=models.CASCADE)
     comment = models.TextField(max_length=2000, default='')
@@ -88,3 +99,16 @@ class Rate(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+    
+    def save(self, *args, **kwargs):
+        self.apartment.stars += self.stars
+        self.apartment.numReviews += 1
+        self.apartment.save()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.apartment.stars -= self.stars
+        self.apartment.numReviews -= 1
+        self.apartment.save()
+
+        super().delete(*args, **kwargs)

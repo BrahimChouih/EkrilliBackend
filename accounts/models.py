@@ -62,8 +62,8 @@ class Account(AbstractBaseUser):
     ##################### Contact Info ###################################
     email = models.EmailField(verbose_name='email',
                               max_length=255, unique=True)
-    phone = models.CharField(max_length=20, blank=True)
     username = models.CharField(max_length=60, unique=True)
+    phone = models.CharField(max_length=20, blank=True)
 
     ######################### picture ####################################
     picture = models.ImageField(upload_to=uploadImage, null=True, blank=True)
@@ -78,8 +78,7 @@ class Account(AbstractBaseUser):
     language = models.CharField(
         choices=LANGUAGE_OPTIONS, max_length=255, default='ARABIC')
 
-    location_latitude = models.FloatField(default=0.0)
-    location_longitude = models.FloatField(default=0.0)
+    location = models.CharField(max_length=100, null=True)
 
     about_me = models.TextField(blank=True, null=True, default='')
 

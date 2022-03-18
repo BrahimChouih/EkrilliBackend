@@ -7,7 +7,7 @@ from .models import (
     Apartment,
     Picture,
     City,
-    Rate,
+    Rating,
 )
 
 def userUrl(user):
@@ -49,8 +49,8 @@ class CityAdmin(admin.ModelAdmin):
     # def owner_(self, obj):
     #     return userUrl(obj.owner)
 
-@admin.register(Rate)
-class RateAdmin(admin.ModelAdmin):
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id', 'title', 'owner_', 'category', 'create_at')
     # list_display_links = ('id', 'title')
