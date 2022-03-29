@@ -1,5 +1,5 @@
 from django.db import models
-from apartments.models import Apartment
+from houses.models import Apartment
 from accounts.models import Account
 # Create your models here.
 

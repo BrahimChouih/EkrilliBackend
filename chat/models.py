@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.db import models
-from apartments.models import Apartment
+from houses.models import Apartment
 from accounts.models import Account
 from django.utils import timezone
 # Create your models here.

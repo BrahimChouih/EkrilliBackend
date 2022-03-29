@@ -18,15 +18,6 @@ def uploadImage(instance, fileName):
     return 'users/%s_pictuer_%s.%s' % (instance.id, name, extesion)
 
 
-def uploadCover(instance, fileName):
-    try:
-        Account.objects.get(id=instance.id).cover.delete()
-    except:
-        print('')
-    extesion = fileName.split('.')[1]
-    name = '%s-%s' % (datetime.now().date(), datetime.now().time())
-    return 'users/%s_cover_%s.%s' % (instance.id, name, extesion)
-
 
 class MyAccountManager(BaseUserManager):
     def create_user(self, email, username, password=None):
