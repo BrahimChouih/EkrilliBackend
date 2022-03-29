@@ -5,13 +5,12 @@ from django.utils.html import format_html
 
 from .models import (
     Message,
-    Friend,
 )
+
 
 def userUrl(user):
     url = '/admin/accounts/account/%d/' % user.id
     return format_html('<a href="{}">{}</a>', url, user.email)
-
 
 
 @admin.register(Message)
@@ -24,17 +23,3 @@ class MessageAdmin(admin.ModelAdmin):
 
     # def owner_(self, obj):
     #     return userUrl(obj.semder)
-
-
-@admin.register(Friend)
-class FriendAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ('id',)
-    # list_display_links = ('id',)
-    # list_filter = ('city',)
-    # search_fields = ('sender__email',)
-
-    # def owner_(self, obj):
-    #     return userUrl(obj.semder)
-
-

@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'accounts',
     # 'personal',
     'houses',
-    # 'chat',
+    'chat',
 ]
 
 MIDDLEWARE = [
