@@ -13,7 +13,7 @@ def uploadImage(instance, fileName):
             Picture.objects.get(id=instance.id).picture.delete()
         except:
             pass
-        extesion = fileName.split('.')[1]
+        extesion = fileName.split('.')[-1]
         name = '%s-%s' % (datetime.now().date(), datetime.now().time())
         return 'houses/%s_%s.%s' % (instance.house.title, name, extesion)
     elif type(instance) == City:
@@ -22,7 +22,7 @@ def uploadImage(instance, fileName):
             City.objects.get(id=instance.id).picture.delete()
         except:
             pass
-        extesion = fileName.split('.')[1]
+        extesion = fileName.split('.')[-1]
         name = '%s-%s' % (datetime.now().date(), datetime.now().time())
         return 'Cities/%s_%s.%s' % (instance.name, name, extesion)
 
@@ -32,17 +32,20 @@ class House(models.Model):
     city = models.ForeignKey(to='City', null=False,
                              on_delete=models.DO_NOTHING)
     houseType = models.ForeignKey(to='HouseType', null=False,
-                             on_delete=models.DO_NOTHING)
+                                  on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=150, null=False)
     description = models.TextField(max_length=2000, default='')
     price_per_day = models.FloatField(default=0.0, null=True)
-    
+
     location_latitude = models.FloatField(default=0.0, null=True)
     location_longitude = models.FloatField(default=0.0, null=True)
     isAvailable = models.BooleanField(default=True)
     stars = models.FloatField(default=0.0, null=True)
     numReviews = models.IntegerField(default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Houses'
 
     def __str__(self):
         return self.title
@@ -56,15 +59,21 @@ class House(models.Model):
             pass
         return super().delete(*args, **kwargs)
 
+
 class HouseType(models.Model):
     title = models.CharField(max_length=150, null=False)
+
     def __str__(self):
         return self.title
+
 
 class Picture(models.Model):
     picture = models.ImageField(upload_to=uploadImage)
     house = models.ForeignKey(
         to='House', null=False, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'Pictures'
 
     def delete(self, *args, **kwargs):
         try:
@@ -80,6 +89,9 @@ class Picture(models.Model):
 class City(models.Model):
     name = models.CharField(max_length=30, null=False)
     picture = models.ImageField(upload_to=uploadImage, null=True, blank=True)
+
+    class Meta:
+        db_table = 'Cities'
 
     def delete(self, *args, **kwargs):
         try:
@@ -98,11 +110,12 @@ class Rating(models.Model):
     stars = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
-    def __str__(self):
-        return self.offer.tenant.username + " on "+self.offer.house.title
-
     class Meta:
         ordering = ['-created_at']
+        db_table = 'Rating'
+
+    def __str__(self):
+        return self.offer.user.username + " on "+self.offer.house.title
 
     def save(self, *args, **kwargs):
         self.offer.house.stars += self.stars
@@ -120,21 +133,27 @@ class Rating(models.Model):
 
 class Offer(models.Model):
     house = models.ForeignKey(to=House, null=False,
-                             on_delete=models.CASCADE)
-    tenant = models.ForeignKey(to=Account, null=False,
+                              on_delete=models.CASCADE)
+    user = models.ForeignKey(to=Account, null=False,
                              on_delete=models.CASCADE)
     status = models.ForeignKey(to='Status', null=False,
-                             on_delete=models.DO_NOTHING)
+                               on_delete=models.DO_NOTHING)
     total_price = models.FloatField(default=0.0, null=False)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    class Meta:
+        db_table = 'Offers'
     def __str__(self):
-        return self.house.title + ': '+self.tenant.username
+        return self.house.title + ': '+self.user.username
 
 
 class Status(models.Model):
-    status = models.CharField(max_length=100,null=False)
+    status = models.CharField(max_length=100, null=False)
+        
+    class Meta:
+        db_table = 'Status'
+        verbose_name_plural = 'Status'
+
     def __str__(self):
         return self.status
