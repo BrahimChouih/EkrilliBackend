@@ -9,8 +9,6 @@ from .models import (
     City,
     Rating,
     Offer,
-    Status,
-    HouseType,
 )
 
 def userUrl(user):
@@ -21,17 +19,6 @@ def userUrl(user):
 
 @admin.register(House)
 class HouseAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ('id',)
-    # list_display_links = ('id',)
-    # list_filter = ('city',)
-    # search_fields = ('sender__email',)
-
-    # def owner_(self, obj):
-    #     return userUrl(obj.semder)
-
-@admin.register(HouseType)
-class HouseTypeAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id',)
     # list_display_links = ('id',)
@@ -76,17 +63,6 @@ class RatingAdmin(admin.ModelAdmin):
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ('id',)
-    # list_display_links = ('id',)
-    # list_filter = ('city',)
-    # search_fields = ('sender__email',)
-
-    # def owner_(self, obj):
-    #     return userUrl(obj.semder)
-
-@admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id',)
     # list_display_links = ('id',)
