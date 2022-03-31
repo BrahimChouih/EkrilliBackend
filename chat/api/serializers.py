@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from chat.models import Message
+from houses.api.serializers import OfferSerializer
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -7,3 +8,8 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = '__all__'
         # exclude = ('',)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['offer'] = OfferSerializer(instance.offer).data
+        return rep
