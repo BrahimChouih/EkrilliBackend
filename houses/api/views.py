@@ -23,6 +23,8 @@ from houses.models import (
 )
 
 
+
+
 class HouseView(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
