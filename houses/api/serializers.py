@@ -1,8 +1,9 @@
 from rest_framework import serializers
+from accounts.api.serializers import AccountSerializer
 from houses.models import (
     House,
     Picture,
-    City, 
+    City,
     Offer,
     Rating,
 )
@@ -13,6 +14,14 @@ class HouseSerializer(serializers.ModelSerializer):
         model = House
         fields = '__all__'
         # exclude = ('',)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['owner'] = AccountSerializer(instance.owner).data
+        rep['city'] = CitySerializer(instance.city).data
+        pictures = Picture.objects.filter(house=instance.id)
+        rep['pictures'] = PictureSerializer(pictures, many=True).data
+        return rep
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -35,9 +44,20 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # exclude = ('',)
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['house'] = HouseSerializer(instance.house).data
+        rep['user'] = AccountSerializer(instance.user).data
+        return rep
+
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = '__all__'
         # exclude = ('',)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['offer'] = OfferSerializer(instance.offer).data
+        return rep

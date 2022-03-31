@@ -30,6 +30,12 @@ class HouseView(viewsets.ModelViewSet):
     serializer_class = HouseSerializer
     permission_classes = [IsAuthenticated]
 
+    def getHouses(self,request):
+        houses = House.objects.all()
+        serializer = HouseSerializer(houses,many=True)
+        return Response(data=serializer.data)
+
+
 
 class CityView(viewsets.ModelViewSet):
     queryset = City.objects.all()

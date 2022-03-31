@@ -13,7 +13,7 @@ urlpatterns = [
     path(
         'houses/',
         HouseView.as_view({
-            'get': 'list',
+            'get': 'getHouses',
         }),
         name='houses'
     ),

@@ -8,7 +8,6 @@ from rest_framework import viewsets
 from personal.api.serializers import FavoriteSerializer
 
 from personal.models import Favorite
-from helpers.helpers import favoriteToJson
 
 
 class FavoriteView(viewsets.ModelViewSet):
@@ -42,10 +41,8 @@ class FavoriteView(viewsets.ModelViewSet):
 
     def getMyFavorite(self, request, *args, **kwargs):
         favorites = Favorite.objects.filter(user=request.user)
-        data = []
-        for favorite in favorites:
-            data.append(favoriteToJson(favorite))
-        return Response(data, status=200)
+        serializer = FavoriteSerializer(favorites,many=True)
+        return Response(serializer.data, status=200)
 
     def destroy(self, request, pk, *args, **kwargs):
         try:
