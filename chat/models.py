@@ -20,22 +20,20 @@ def uploadImage(instance, fileName):
 class Message(models.Model):
     offer = models.ForeignKey(
         to=Offer, on_delete=models.CASCADE, null=False, blank=False)
-    message_type = models.ForeignKey(
-        to='MessageType', on_delete=models.DO_NOTHING, null=False, blank=False)
 
-    message_type_options = (
-        ('request', 'request'),
-        ('response', 'response')
+    MESSAGE_TYPE_OPTIONS = (
+        ('REQUEST', 'REQUEST'),
+        ('RESPONSE', 'RESPONSE')
     )
     message_type = models.CharField(
-        choices=message_type_options, max_length=100, default='request')
+        choices=MESSAGE_TYPE_OPTIONS, max_length=100, default='REQUEST')
 
-    content_type_options = (
-        ('message', 'message'),
-        ('image', 'image'),
+    CONTENT_TYPE_OPTIONS = (
+        ('MESSAGE', 'MESSAGE'),
+        ('IMAGE', 'IMAGE'),
     )
     content_type = models.CharField(
-        choices=content_type_options, max_length=100, default='message')
+        choices=CONTENT_TYPE_OPTIONS, max_length=100, default='MESSAGE')
 
     message = models.TextField(max_length=2000, null=True, blank=True)
     image = models.ImageField(upload_to=uploadImage, null=True, blank=True)

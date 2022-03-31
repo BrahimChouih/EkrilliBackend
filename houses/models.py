@@ -31,8 +31,14 @@ class House(models.Model):
     owner = models.ForeignKey(to=Account, null=False, on_delete=models.CASCADE)
     city = models.ForeignKey(to='City', null=False,
                              on_delete=models.DO_NOTHING)
-    houseType = models.ForeignKey(to='HouseType', null=False,
-                                  on_delete=models.DO_NOTHING)
+
+    HOUSE_TYPE_OPTIONS = (
+        ('VILLA', 'VILLA'),
+        ('APARTMENT', 'APARTMENT'),
+    )
+    houseType = models.CharField(
+        choices=HOUSE_TYPE_OPTIONS, max_length=100, default='VILLA')
+
     title = models.CharField(max_length=150, null=False)
     description = models.TextField(max_length=2000, default='')
     price_per_day = models.FloatField(default=0.0, null=True)
@@ -60,11 +66,6 @@ class House(models.Model):
         return super().delete(*args, **kwargs)
 
 
-class HouseType(models.Model):
-    title = models.CharField(max_length=150, null=False)
-
-    def __str__(self):
-        return self.title
 
 
 class Picture(models.Model):
@@ -136,8 +137,14 @@ class Offer(models.Model):
                               on_delete=models.CASCADE)
     user = models.ForeignKey(to=Account, null=False,
                              on_delete=models.CASCADE)
-    status = models.ForeignKey(to='Status', null=False,
-                               on_delete=models.DO_NOTHING)
+
+    STATUS_OPTIONS = (
+        ('NEGOTIATE', 'NEGOTIATE'),
+        ('DURING', 'DURING'),
+        ('DONE', 'DONE'),
+    )
+    status = models.CharField(
+        choices=STATUS_OPTIONS, max_length=100, default='NEGOTIATE')
     total_price = models.FloatField(default=0.0, null=False)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -148,12 +155,3 @@ class Offer(models.Model):
         return self.house.title + ': '+self.user.username
 
 
-class Status(models.Model):
-    status = models.CharField(max_length=100, null=False)
-        
-    class Meta:
-        db_table = 'Status'
-        verbose_name_plural = 'Status'
-
-    def __str__(self):
-        return self.status
