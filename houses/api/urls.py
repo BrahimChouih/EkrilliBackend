@@ -14,6 +14,23 @@ urlpatterns = [
         'houses/',
         HouseView.as_view({
             'get': 'getHouses',
+            'post': 'createWithImages',
+        }),
+        name='houses'
+    ),
+    path(
+        'houses/<int:pk>/',
+        HouseView.as_view({
+            'get': 'getHouseInfo',
+            'put': 'partial_update',
+            'delete': 'destroy',
+        }),
+        name='houses'
+    ),
+    path(
+        'houses/city/<int:city>/',
+        HouseView.as_view({
+            'get': 'getHouseByCity',
         }),
         name='houses'
     ),
