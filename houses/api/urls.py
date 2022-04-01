@@ -1,3 +1,4 @@
+from rest_framework import routers
 from django.urls import path
 from .views import (
     HouseView,
@@ -22,7 +23,7 @@ urlpatterns = [
         'houses/<int:pk>/',
         HouseView.as_view({
             'get': 'getHouseInfo',
-            'put': 'partial_update',
+            'patch': 'partial_update',
             'delete': 'destroy',
         }),
         name='houses'
@@ -44,15 +45,36 @@ urlpatterns = [
     path(
         'offers/',
         OfferView.as_view({
-            'get': 'list',
+            'get': 'getOffersForMyHouses',
+            'post': 'create',
         }),
         name='offers'
     ),
+
     path(
-        'ratings/',
+        'offers-for-me/',
+        OfferView.as_view({
+            'get': 'getMyOffers',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'rating-on-house/',
         RatingView.as_view({
-            'get': 'list',
+            'post': 'create',
+        }),
+        name='ratings'
+    ),
+    path(
+        'ratings-of-house/<int:houseId>/',
+        RatingView.as_view({
+            'get': 'getHouseRatings',
         }),
         name='ratings'
     ),
 ]
+router = routers.SimpleRouter()
+router.register(r'offers',OfferView)
+
+urlpatterns += router.urls

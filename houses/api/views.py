@@ -94,11 +94,11 @@ class HouseView(viewsets.ModelViewSet):
             return Response({'response': 'you don\'t have permission for this'}, status=400)
 
 
-
 class CityView(viewsets.ModelViewSet):
     queryset = City.objects.all()
     serializer_class = CitySerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
 
 
 class OfferView(viewsets.ModelViewSet):
@@ -106,8 +106,56 @@ class OfferView(viewsets.ModelViewSet):
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
 
+    def getOffersForMyHouses(self, request):
+        offers = Offer.objects.filter(house__owner__id=request.user.id)
+        serializer = OfferSerializer(offers, many=True)
+        return Response(serializer.data, status=200)
+
+    def getMyOffers(self, request):
+        offers = Offer.objects.filter(user=request.user.id)
+        serializer = OfferSerializer(offers, many=True)
+        return Response(serializer.data, status=200)
+
+    def partial_update(self, request, pk, *args, **kwargs):
+        try:
+            offer = Offer.objects.get(id=pk)
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=400)
+
+        if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
+            return super().partial_update(request, *args, **kwargs)
+
+        return Response({'response': 'You dont have permision for that'}, status=400)
+
 
 class RatingView(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
     permission_classes = [IsAuthenticated]
+
+    def getHouseRatings(self, request, houseId):
+        try:
+            House.objects.get(id=houseId)
+        except:
+            return Response({'response': 'There is not a house with this id'}, status=400)
+        ratings = Rating.objects.filter(offer__house__id=houseId)
+        page = self.paginate_queryset(ratings)
+        # sleep(2)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            offer = Offer.objects.get(id=request.data['offer'])
+
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=400)
+
+        try:
+            Rating.objects.get(offer=offer.id)
+            return Response({'response': 'You are already rate this offer'}, status=400)
+        except:
+            pass
+
+        return super().create(request, *args, **kwargs)
