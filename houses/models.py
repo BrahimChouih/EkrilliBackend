@@ -66,8 +66,6 @@ class House(models.Model):
         return super().delete(*args, **kwargs)
 
 
-
-
 class Picture(models.Model):
     picture = models.ImageField(upload_to=uploadImage)
     house = models.ForeignKey(
@@ -149,9 +147,17 @@ class Offer(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         db_table = 'Offers'
+
     def __str__(self):
         return self.house.title + ': '+self.user.username
 
-
+    def save(self, *args, **kwargs):
+        if self.status=='DURING':
+            self.house.isAvailable = False
+        elif self.status=='NEGOTIATE' or self.status=='DONE':
+            self.house.isAvailable = True
+        self.house.save()
+        super().save(*args, **kwargs)

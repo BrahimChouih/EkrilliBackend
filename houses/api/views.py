@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
@@ -24,7 +25,7 @@ from houses.models import (
 
 
 class HouseView(viewsets.ModelViewSet):
-    queryset = House.objects.all()
+    queryset = House.objects.filter(isAvailable=True)
     serializer_class = HouseSerializer
     permission_classes = [IsAuthenticated]
 
@@ -36,7 +37,7 @@ class HouseView(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
     def getHouseByCity(self, request, city):
-        houses = House.objects.filter(city=city)
+        houses = House.objects.filter(city=city, isAvailable=True)
         page = self.paginate_queryset(houses)
         # sleep(2)
         if page is not None:
@@ -69,7 +70,7 @@ class HouseView(viewsets.ModelViewSet):
         try:
             house = House.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not a house with this id'}, status=400)
+            return Response({'response': 'There is not any house with this id'}, status=400)
         serializer = HouseSerializer(house, many=False)
         return Response(serializer.data)
 
@@ -124,6 +125,24 @@ class OfferView(viewsets.ModelViewSet):
 
         if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
             return super().partial_update(request, *args, **kwargs)
+
+        return Response({'response': 'You dont have permision for that'}, status=400)
+
+    def changeStatus(self, request, pk, *args, **kwargs):
+        try:
+            offer = Offer.objects.get(id=pk)
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=400)
+
+        if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
+            status = request.data['status']
+            offer.status = status
+            print(type(offer.__dict__))
+            serializer = OfferSerializer(data=model_to_dict(offer))
+            if(serializer.is_valid()):
+                serializer.save()
+                return Response({'response': 'change status value to %s' % status}, status=200)
+            return Response(serializer.error_messages, status=400)
 
         return Response({'response': 'You dont have permision for that'}, status=400)
 

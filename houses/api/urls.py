@@ -47,6 +47,15 @@ urlpatterns = [
         OfferView.as_view({
             'get': 'getOffersForMyHouses',
             'post': 'create',
+            'patch':'partial_updata',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/status/<int:pk>/',
+        OfferView.as_view({
+            'patch':'changeStatus',
         }),
         name='offers'
     ),
