@@ -140,7 +140,7 @@ class OfferView(viewsets.ModelViewSet):
             print(type(offer.__dict__))
             serializer = OfferSerializer(data=model_to_dict(offer))
             if(serializer.is_valid()):
-                serializer.save()
+                offer.save()
                 return Response({'response': 'change status value to %s' % status}, status=200)
             return Response(serializer.error_messages, status=400)
 
