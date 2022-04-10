@@ -139,6 +139,7 @@ class Offer(models.Model):
     STATUS_OPTIONS = (
         ('NEGOTIATE', 'NEGOTIATE'),
         ('DURING', 'DURING'),
+        ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
         ('DONE', 'DONE'),
     )
     status = models.CharField(
