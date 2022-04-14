@@ -31,17 +31,15 @@ class FavoriteView(viewsets.ModelViewSet):
             pass
         try:
             Favorite.objects.get(
-                    user=request.user.id, house=request.data['house'])
+                user=request.user.id, house=request.data['house'])
             return Response({
-                'response': 'This %s already exist in your favorite' % request.data['favoriteType']
-            },
-                status=400)
+                'response': 'This %s already exist in your favorite'}, status=400)
         except:
             return super().create(request, *args, **kwargs)
 
     def getMyFavorite(self, request, *args, **kwargs):
         favorites = Favorite.objects.filter(user=request.user)
-        serializer = FavoriteSerializer(favorites,many=True)
+        serializer = FavoriteSerializer(favorites, many=True)
         return Response(serializer.data, status=200)
 
     def destroy(self, request, pk, *args, **kwargs):
