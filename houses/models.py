@@ -158,7 +158,7 @@ class Offer(models.Model):
     def save(self, *args, **kwargs):
         if self.status=='DURING':
             self.house.isAvailable = False
-        elif self.status=='NEGOTIATE' or self.status=='DONE':
+        else:
             self.house.isAvailable = True
         self.house.save()
         super().save(*args, **kwargs)

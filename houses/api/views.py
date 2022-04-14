@@ -1,4 +1,5 @@
 from django.forms import model_to_dict
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
@@ -113,9 +114,18 @@ class OfferView(viewsets.ModelViewSet):
         return Response(serializer.data, status=200)
 
     def getMyOffers(self, request):
-        offers = Offer.objects.filter(user=request.user.id)
+        # offers = Offer.objects.filter(user=request.user.id)
+        offers = Offer.objects.filter( Q(user=request.user.id) | Q(house__owner__id=request.user.id))
         serializer = OfferSerializer(offers, many=True)
         return Response(serializer.data, status=200)
+    
+    def getOfferInfo(self, request, pk, *args, **kwargs):
+        try:
+            offer = Offer.objects.get(id=pk)
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=400)
+        serializer = OfferSerializer(offer, many=False)
+        return Response(serializer.data)
 
     def partial_update(self, request, pk, *args, **kwargs):
         try:

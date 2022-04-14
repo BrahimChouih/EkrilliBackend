@@ -45,9 +45,18 @@ urlpatterns = [
     path(
         'offers/',
         OfferView.as_view({
-            'get': 'getOffersForMyHouses',
+            # 'get': 'getOffersForMyHouses',
+            'get': 'getMyOffers',
             'post': 'create',
-            'patch':'partial_updata',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/<int:pk>/',
+        OfferView.as_view({
+            'get':'getOfferInfo',
+            'patch': 'partial_update',
         }),
         name='offers'
     ),
@@ -55,7 +64,7 @@ urlpatterns = [
     path(
         'offers/status/<int:pk>/',
         OfferView.as_view({
-            'patch':'changeStatus',
+            'patch': 'changeStatus',
         }),
         name='offers'
     ),
@@ -84,6 +93,6 @@ urlpatterns = [
     ),
 ]
 router = routers.SimpleRouter()
-router.register(r'offers',OfferView)
+router.register(r'offers', OfferView)
 
 urlpatterns += router.urls
