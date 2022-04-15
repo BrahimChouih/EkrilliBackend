@@ -26,12 +26,12 @@ from houses.models import (
 
 
 class HouseView(viewsets.ModelViewSet):
-    queryset = House.objects.filter(isAvailable=True)
+    queryset = House.objects.all()
     serializer_class = HouseSerializer
     permission_classes = [IsAuthenticated]
 
     def getHouses(self, request):
-        page = self.paginate_queryset(self.queryset)
+        page = self.paginate_queryset(House.objects.filter(isAvailable=True))
         # sleep(2)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -71,7 +71,7 @@ class HouseView(viewsets.ModelViewSet):
         try:
             house = House.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not any house with this id'}, status=400)
+            return Response({'response': 'There is not any house with this id'}, status=404)
         serializer = HouseSerializer(house, many=False)
         return Response(serializer.data)
 
@@ -79,7 +79,7 @@ class HouseView(viewsets.ModelViewSet):
         try:
             house = House.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not a house with this id'}, status=400)
+            return Response({'response': 'There is not a house with this id'}, status=404)
         if house.owner.id != request.user.id:
             return Response({'response': 'You dont have permision for that'}, status=400)
         return super().partial_update(request, *args, **kwargs)
@@ -88,12 +88,12 @@ class HouseView(viewsets.ModelViewSet):
         try:
             house = House.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not an item with this id'}, status=400)
+            return Response({'response': 'There is not an item with this id'}, status=404)
         if house.owner.id == request.user.id:
             super().destroy(request, pk, *args, **kwargs)
             return Response({'response': 'Successfully delete this item'})
         else:
-            return Response({'response': 'you don\'t have permission for this'}, status=400)
+            return Response({'response': 'You dont have permision for that'}, status=400)
 
 
 class CityView(viewsets.ModelViewSet):
@@ -115,15 +115,16 @@ class OfferView(viewsets.ModelViewSet):
 
     def getMyOffers(self, request):
         # offers = Offer.objects.filter(user=request.user.id)
-        offers = Offer.objects.filter( Q(user=request.user.id) | Q(house__owner__id=request.user.id))
+        offers = Offer.objects.filter(
+            Q(user=request.user.id) | Q(house__owner__id=request.user.id))
         serializer = OfferSerializer(offers, many=True)
         return Response(serializer.data, status=200)
-    
+
     def getOfferInfo(self, request, pk, *args, **kwargs):
         try:
             offer = Offer.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not any offer with this id'}, status=400)
+            return Response({'response': 'There is not any offer with this id'}, status=404)
         serializer = OfferSerializer(offer, many=False)
         return Response(serializer.data)
 
@@ -131,7 +132,7 @@ class OfferView(viewsets.ModelViewSet):
         try:
             offer = Offer.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not any offer with this id'}, status=400)
+            return Response({'response': 'There is not any offer with this id'}, status=404)
 
         if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
             return super().partial_update(request, *args, **kwargs)
@@ -142,7 +143,7 @@ class OfferView(viewsets.ModelViewSet):
         try:
             offer = Offer.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not any offer with this id'}, status=400)
+            return Response({'response': 'There is not any offer with this id'}, status=404)
 
         if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
             status = request.data['status']
@@ -166,7 +167,7 @@ class RatingView(viewsets.ModelViewSet):
         try:
             House.objects.get(id=houseId)
         except:
-            return Response({'response': 'There is not a house with this id'}, status=400)
+            return Response({'response': 'There is not a house with this id'}, status=404)
         ratings = Rating.objects.filter(offer__house__id=houseId)
         page = self.paginate_queryset(ratings)
         # sleep(2)
@@ -179,12 +180,15 @@ class RatingView(viewsets.ModelViewSet):
             offer = Offer.objects.get(id=request.data['offer'])
 
         except:
-            return Response({'response': 'There is not any offer with this id'}, status=400)
+            return Response({'response': 'There is not any offer with this id'}, status=404)
 
         try:
-            Rating.objects.get(offer=offer.id)
+            Rating.objects.get(offer=offer.id, offer__user__id=request.user.id)
             return Response({'response': 'You are already rate this offer'}, status=400)
         except:
             pass
+
+        if(offer.id != request.user.id):
+            return Response({'response': 'You dont have permision for that'}, status=400)
 
         return super().create(request, *args, **kwargs)

@@ -46,9 +46,9 @@ class FavoriteView(viewsets.ModelViewSet):
         try:
             favotite = Favorite.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not an item with this id'}, status=400)
+            return Response({'response': 'There is not an item with this id'}, status=404)
         if favotite.user.id == request.user.id:
             super().destroy(request, pk, *args, **kwargs)
             return Response({'response': 'Successfully delete this item'})
         else:
-            return Response({'response': 'you don\'t have permission for this'}, status=400)
+            return Response({'response': 'You dont have permision for that'}, status=400)

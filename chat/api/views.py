@@ -11,6 +11,7 @@ from chat import firebase_messaging_helper as firebaseMC
 
 from chat.models import Message
 from houses.api.serializers import OfferSerializer
+from houses.models import Offer
 
 
 # def pushNotification(message):
@@ -40,6 +41,10 @@ class MessageView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def getConversation(self, request, offerId):
+        try:
+            Offer.objects.get(id=offerId)
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=404)
         conversation = Message.objects.filter(offer=offerId)
         page = self.paginate_queryset(conversation)
         # sleep(2)
@@ -48,7 +53,9 @@ class MessageView(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
     def newMessageWithNewOffer(self, request, *args, **kwargs):
-        serializer = OfferSerializer(data=request.data['offer'])
+        offerData = request.data['offer']
+        offerData['user']=request.user.id
+        serializer = OfferSerializer(data=offerData)
         if serializer.is_valid():
             serializer.save()
         else:
@@ -89,7 +96,10 @@ class MessageView(viewsets.ModelViewSet):
             request.data._mutable = _mutable
         except:
             pass
-
+        try:
+            Offer.objects.get(id=offerId)
+        except:
+            return Response({'response': 'There is not any offer with this id'}, status=404)
         return super().create(request, *args, **kwargs)
         # response = super().create(request, *args, **kwargs)
         # if response.status_code == 200:
