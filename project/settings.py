@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     #my apps
     'accounts',
     'personal',
-    'apartments',
+    'houses',
     'chat',
 ]
 

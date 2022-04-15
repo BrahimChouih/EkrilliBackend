@@ -4,10 +4,11 @@ from django.utils.html import format_html
 # Register your models here.
 
 from .models import (
-    Apartment,
+    House,
     Picture,
     City,
     Rating,
+    Offer,
 )
 
 def userUrl(user):
@@ -16,8 +17,8 @@ def userUrl(user):
 
 
 
-@admin.register(Apartment)
-class ApartmentAdmin(admin.ModelAdmin):
+@admin.register(House)
+class HouseAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id',)
     # list_display_links = ('id',)
@@ -51,6 +52,17 @@ class CityAdmin(admin.ModelAdmin):
 
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
+    pass
+    # list_display = ('id',)
+    # list_display_links = ('id',)
+    # list_filter = ('city',)
+    # search_fields = ('sender__email',)
+
+    # def owner_(self, obj):
+    #     return userUrl(obj.semder)
+
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id',)
     # list_display_links = ('id',)
