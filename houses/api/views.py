@@ -1,12 +1,10 @@
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import viewsets
+
 from django.forms import model_to_dict
 from django.db.models import Q
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.authtoken.models import Token
-
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import viewsets
 
 from houses.api.serializers import (
     HouseSerializer,
@@ -28,9 +26,9 @@ from houses.models import (
 class HouseView(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def getHouses(self, request):
+    def getHouses(self, request, *args, **kwargs):
         page = self.paginate_queryset(House.objects.filter(isAvailable=True))
         # sleep(2)
         if page is not None:
@@ -45,7 +43,6 @@ class HouseView(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def createWithImages(self, request, *args, **kwargs):
         _mutable = True
         try:
@@ -161,7 +158,7 @@ class OfferView(viewsets.ModelViewSet):
 class RatingView(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def getHouseRatings(self, request, houseId):
         try:
