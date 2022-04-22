@@ -69,7 +69,15 @@ class Account(AbstractBaseUser):
     language = models.CharField(
         choices=LANGUAGE_OPTIONS, max_length=255, default='ARABIC')
 
-    location = models.CharField(max_length=100, null=True)
+    USER_TYPE_OPTIONS = [
+        ('OWNER', 'OWNER'),
+        ('TENANT', 'TENANT'),
+    ]
+
+    user_type = models.CharField(
+        choices=USER_TYPE_OPTIONS, max_length=255, default='TENANT')
+
+    location = models.CharField(max_length=100, blank=True, null=True, default='')
 
     about_me = models.TextField(blank=True, null=True, default='')
 
