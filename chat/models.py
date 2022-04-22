@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.db import models
 from django.utils import timezone
+from accounts.models import Account
 from houses.models import Offer
 # Create your models here.
 
@@ -20,6 +21,8 @@ def uploadImage(instance, fileName):
 class Message(models.Model):
     offer = models.ForeignKey(
         to=Offer, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey(
+        to=Account, on_delete=models.CASCADE, null=False, blank=False)
 
     MESSAGE_TYPE_OPTIONS = (
         ('REQUEST', 'REQUEST'),

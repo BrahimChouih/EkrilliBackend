@@ -156,7 +156,7 @@ class Offer(models.Model):
         return self.house.title + ': '+self.user.username
 
     def save(self, *args, **kwargs):
-        if self.status=='DURING':
+        if self.status == 'DURING':
             self.house.isAvailable = False
         else:
             self.house.isAvailable = True
