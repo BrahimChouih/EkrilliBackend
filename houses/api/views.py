@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from django.forms import model_to_dict
 from django.db.models import Q
 
-from accounts.models import Account 
+from accounts.models import Account
 
 from houses.api.serializers import (
     HouseSerializer,
@@ -63,8 +63,10 @@ class HouseView(viewsets.ModelViewSet):
 
         for i in range(len(request.FILES)):
             Picture.objects.create(
-                house_id=data['id'], image=request.FILES[f'pictures[{i}][picture]'])
-        return Response(data)
+                house_id=data['id'], picture=request.FILES[f'pictures[{i}][picture]'])
+
+        serializer = HouseSerializer(House.objects.get(id=data['id']),many=False)
+        return Response(serializer.data)
 
     def getHouseInfo(self, request, pk, *args, **kwargs):
         try:
@@ -81,6 +83,11 @@ class HouseView(viewsets.ModelViewSet):
             return Response({'response': 'There is not a house with this id'}, status=404)
         if house.owner.id != request.user.id:
             return Response({'response': 'You dont have permision for that'}, status=400)
+
+        for i in range(len(request.FILES)):
+            Picture.objects.create(
+                house_id=house.id, picture=request.FILES[f'pictures[{i}][picture]'])
+                
         return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, pk, *args, **kwargs):
@@ -94,6 +101,18 @@ class HouseView(viewsets.ModelViewSet):
         else:
             return Response({'response': 'You dont have permision for that'}, status=400)
 
+    def deletePicture(self, request, pk):
+        try:
+            picture = Picture.objects.get(id=pk)
+            house = picture.house
+            if house.owner.id == request.user.id:
+                picture.delete()
+                return Response({'response': 'Successfully delete this Gig'})
+            else:
+                return Response({'response': 'you don\'t have permission for this'}, status=400)
+        except:
+            return Response({'response': 'There is not any picture with this id'}, status=400)
+
 
 class CityView(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -106,7 +125,6 @@ class OfferView(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
 
     def getOffersByCity(self, request, city):
         offers = Offer.objects.filter(house__city=city, status='PUBLISHED')
@@ -165,7 +183,7 @@ class OfferView(viewsets.ModelViewSet):
         offer.status = status
 
         if request.data['user'] != None:
-            user = Account.objects.get(id=request.data['user'])           
+            user = Account.objects.get(id=request.data['user'])
             offer.user = user
 
         print(type(offer.__dict__))
@@ -174,8 +192,6 @@ class OfferView(viewsets.ModelViewSet):
             offer.save()
             return Response({'response': 'change status value to %s' % status}, status=200)
         return Response(serializer.error_messages, status=400)
-
-        
 
 
 class RatingView(viewsets.ModelViewSet):

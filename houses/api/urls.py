@@ -36,6 +36,13 @@ urlpatterns = [
         name='houses'
     ),
     path(
+        'houses/picture/<int:pk>/',
+        HouseView.as_view({
+            'delete': 'deletePicture',
+        }),
+        name='houses'
+    ),
+    path(
         'cities/',
         CityView.as_view({
             'get': 'list',
@@ -63,7 +70,7 @@ urlpatterns = [
     path(
         'offers/<int:pk>/',
         OfferView.as_view({
-            'get':'getOfferInfo',
+            'get': 'getOfferInfo',
             'patch': 'partial_update',
         }),
         name='offers'
