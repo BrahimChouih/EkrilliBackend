@@ -133,17 +133,18 @@ class Rating(models.Model):
 class Offer(models.Model):
     house = models.ForeignKey(to=House, null=False,
                               on_delete=models.CASCADE)
-    user = models.ForeignKey(to=Account, null=False,
+    user = models.ForeignKey(to=Account, null=True, blank=True,
                              on_delete=models.CASCADE)
 
     STATUS_OPTIONS = (
+        ('PUBLISHED', 'PUBLISHED'),
         ('NEGOTIATE', 'NEGOTIATE'),
-        ('DURING', 'DURING'),
-        ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
+        # ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
+        ('RENTED', 'RENTED'),
         ('DONE', 'DONE'),
     )
     status = models.CharField(
-        choices=STATUS_OPTIONS, max_length=100, default='NEGOTIATE')
+        choices=STATUS_OPTIONS, max_length=100, default='PUBLISHED')
     total_price = models.FloatField(default=0.0, null=False)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -153,12 +154,12 @@ class Offer(models.Model):
         db_table = 'Offers'
 
     def __str__(self):
-        return self.house.title + ': '+self.user.username
+        return self.house.title + ((': '+self.user.username) if self.user != None else '')
 
-    def save(self, *args, **kwargs):
-        if self.status == 'DURING':
-            self.house.isAvailable = False
-        else:
-            self.house.isAvailable = True
-        self.house.save()
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.status == 'RENTED':
+    #         self.house.isAvailable = False
+    #     else:
+    #         self.house.isAvailable = True
+    #     self.house.save()
+    #     super().save(*args, **kwargs)

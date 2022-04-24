@@ -33,6 +33,7 @@ class Message(models.Model):
 
     CONTENT_TYPE_OPTIONS = (
         ('MESSAGE', 'MESSAGE'),
+        ('ACTION', 'ACTION'),
         ('IMAGE', 'IMAGE'),
     )
     content_type = models.CharField(
@@ -43,7 +44,7 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.offer.house.title + ': '+self.offer.user.username
+        return self.offer.house.title + ': '+self.user.username
 
     class Meta:
         ordering = ['-created_at']

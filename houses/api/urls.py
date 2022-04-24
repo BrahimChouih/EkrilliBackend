@@ -46,8 +46,16 @@ urlpatterns = [
         'offers/',
         OfferView.as_view({
             # 'get': 'getOffersForMyHouses',
-            'get': 'getMyOffers',
+            'get': 'list',
             'post': 'create',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/city/<int:city>/',
+        OfferView.as_view({
+            'get': 'getOffersByCity',
         }),
         name='offers'
     ),
