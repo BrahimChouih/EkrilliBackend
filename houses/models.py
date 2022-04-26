@@ -41,8 +41,10 @@ class House(models.Model):
 
     title = models.CharField(max_length=150, null=False)
     description = models.TextField(max_length=2000, default='')
-    price_per_day = models.FloatField(default=0.0, null=True)
-
+    rooms = models.IntegerField(default=1)
+    bathrooms = models.IntegerField(default=1)
+    kitchens = models.IntegerField(default=1)
+    bedrooms = models.IntegerField(default=1)
     location_latitude = models.FloatField(default=0.0, null=True)
     location_longitude = models.FloatField(default=0.0, null=True)
     isAvailable = models.BooleanField(default=True)
@@ -156,7 +158,7 @@ class Offer(models.Model):
         return self.house.title + ': '+self.user.username
 
     def save(self, *args, **kwargs):
-        if self.status=='DURING':
+        if self.status == 'DURING':
             self.house.isAvailable = False
         else:
             self.house.isAvailable = True
