@@ -46,6 +46,9 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('auth/', include('accounts.api.urls')),
+    path('api/', include('houses.api.urls')),
+    path('api/', include('chat.api.urls')),
+    path('api/', include('personal.api.urls')),
 ]
 
 urlpatterns += re_path(r'^media/(?P<path>.*)$', serve,
