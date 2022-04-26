@@ -33,7 +33,7 @@ class FavoriteView(viewsets.ModelViewSet):
             Favorite.objects.get(
                 user=request.user.id, house=request.data['house'])
             return Response({
-                'response': 'This %s already exist in your favorite'}, status=400)
+                'response': 'This house already exist in your favorite'}, status=400)
         except:
             return super().create(request, *args, **kwargs)
 
@@ -46,7 +46,7 @@ class FavoriteView(viewsets.ModelViewSet):
         try:
             favotite = Favorite.objects.get(id=pk)
         except:
-            return Response({'response': 'There is not an item with this id'}, status=404)
+            return Response({'response': 'There is not any item with this id'}, status=404)
         if favotite.user.id == request.user.id:
             super().destroy(request, pk, *args, **kwargs)
             return Response({'response': 'Successfully delete this item'})

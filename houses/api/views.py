@@ -1,12 +1,12 @@
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import viewsets
+
 from django.forms import model_to_dict
 from django.db.models import Q
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.authtoken.models import Token
 
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import viewsets
+from accounts.models import Account
 
 from houses.api.serializers import (
     HouseSerializer,
@@ -28,9 +28,9 @@ from houses.models import (
 class HouseView(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def getHouses(self, request):
+    def getHouses(self, request, *args, **kwargs):
         page = self.paginate_queryset(House.objects.filter(isAvailable=True))
         # sleep(2)
         if page is not None:
@@ -45,7 +45,6 @@ class HouseView(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def createWithImages(self, request, *args, **kwargs):
         _mutable = True
         try:
@@ -64,8 +63,10 @@ class HouseView(viewsets.ModelViewSet):
 
         for i in range(len(request.FILES)):
             Picture.objects.create(
-                house_id=data['id'], image=request.FILES[f'pictures[{i}][picture]'])
-        return Response(data)
+                house_id=data['id'], picture=request.FILES[f'pictures[{i}][picture]'])
+
+        serializer = HouseSerializer(House.objects.get(id=data['id']),many=False)
+        return Response(serializer.data)
 
     def getHouseInfo(self, request, pk, *args, **kwargs):
         try:
@@ -82,6 +83,11 @@ class HouseView(viewsets.ModelViewSet):
             return Response({'response': 'There is not a house with this id'}, status=404)
         if house.owner.id != request.user.id:
             return Response({'response': 'You dont have permision for that'}, status=400)
+
+        for i in range(len(request.FILES)):
+            Picture.objects.create(
+                house_id=house.id, picture=request.FILES[f'pictures[{i}][picture]'])
+                
         return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, pk, *args, **kwargs):
@@ -95,6 +101,18 @@ class HouseView(viewsets.ModelViewSet):
         else:
             return Response({'response': 'You dont have permision for that'}, status=400)
 
+    def deletePicture(self, request, pk):
+        try:
+            picture = Picture.objects.get(id=pk)
+            house = picture.house
+            if house.owner.id == request.user.id:
+                picture.delete()
+                return Response({'response': 'Successfully delete this Gig'})
+            else:
+                return Response({'response': 'you don\'t have permission for this'}, status=400)
+        except:
+            return Response({'response': 'There is not any picture with this id'}, status=400)
+
 
 class CityView(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -106,7 +124,23 @@ class CityView(viewsets.ModelViewSet):
 class OfferView(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def getOffersByCity(self, request, city):
+        offers = Offer.objects.filter(house__city=city, status='PUBLISHED')
+        page = self.paginate_queryset(offers)
+        # sleep(2)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        offers = Offer.objects.filter(status='PUBLISHED')
+        page = self.paginate_queryset(offers)
+        # sleep(2)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
     def getOffersForMyHouses(self, request):
         offers = Offer.objects.filter(house__owner__id=request.user.id)
@@ -134,7 +168,7 @@ class OfferView(viewsets.ModelViewSet):
         except:
             return Response({'response': 'There is not any offer with this id'}, status=404)
 
-        if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
+        if request.user.id == offer.house.owner.id:
             return super().partial_update(request, *args, **kwargs)
 
         return Response({'response': 'You dont have permision for that'}, status=400)
@@ -145,23 +179,25 @@ class OfferView(viewsets.ModelViewSet):
         except:
             return Response({'response': 'There is not any offer with this id'}, status=404)
 
-        if request.user.id == offer.house.owner.id or request.user.id == offer.user.id:
-            status = request.data['status']
-            offer.status = status
-            print(type(offer.__dict__))
-            serializer = OfferSerializer(data=model_to_dict(offer))
-            if(serializer.is_valid()):
-                offer.save()
-                return Response({'response': 'change status value to %s' % status}, status=200)
-            return Response(serializer.error_messages, status=400)
+        status = request.data['status']
+        offer.status = status
 
-        return Response({'response': 'You dont have permision for that'}, status=400)
+        if request.data['user'] != None:
+            user = Account.objects.get(id=request.data['user'])
+            offer.user = user
+
+        print(type(offer.__dict__))
+        serializer = OfferSerializer(data=model_to_dict(offer))
+        if(serializer.is_valid()):
+            offer.save()
+            return Response({'response': 'change status value to %s' % status}, status=200)
+        return Response(serializer.error_messages, status=400)
 
 
 class RatingView(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def getHouseRatings(self, request, houseId):
         try:
@@ -187,8 +223,8 @@ class RatingView(viewsets.ModelViewSet):
             return Response({'response': 'You are already rate this offer'}, status=400)
         except:
             pass
-
-        if(offer.id != request.user.id):
+        # offer.user == None
+        if(offer.user == None or offer.user.id != request.user.id):
             return Response({'response': 'You dont have permision for that'}, status=400)
 
         return super().create(request, *args, **kwargs)

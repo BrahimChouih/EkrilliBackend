@@ -6,7 +6,7 @@ app_name = 'chat'
 
 urlpatterns = [
     path(
-        'conversation/<int:offerId>/',
+        'conversation/<int:offerId>/<int:userId>/',
         MessageView.as_view({
             'get': 'getConversation',
             'post': 'create',
@@ -14,7 +14,7 @@ urlpatterns = [
         name='chat'
     ),  
     path(
-        'new-message/new-offer/',
+        'new-message/new-offer/<int:userId>/',
         MessageView.as_view({
             'post': 'newMessageWithNewOffer',
         }),

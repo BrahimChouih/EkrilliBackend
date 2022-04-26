@@ -40,21 +40,21 @@ class MessageView(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
-    def getConversation(self, request, offerId):
+    def getConversation(self, request, offerId, userId):
         try:
             Offer.objects.get(id=offerId)
         except:
             return Response({'response': 'There is not any offer with this id'}, status=404)
-        conversation = Message.objects.filter(offer=offerId)
+        conversation = Message.objects.filter(offer=offerId, user=userId)
         page = self.paginate_queryset(conversation)
         # sleep(2)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    def newMessageWithNewOffer(self, request, *args, **kwargs):
+    def newMessageWithNewOffer(self, request, userId, *args, **kwargs):
         offerData = request.data['offer']
-        offerData['user']=request.user.id
+        offerData['user'] = request.user.id
         serializer = OfferSerializer(data=offerData)
         if serializer.is_valid():
             serializer.save()
@@ -69,6 +69,7 @@ class MessageView(viewsets.ModelViewSet):
             pass
 
         request.data['offer'] = serializer.data['id']
+        request.data['user'] = userId
 
         try:
             request.data._mutable = _mutable
@@ -82,7 +83,7 @@ class MessageView(viewsets.ModelViewSet):
         #     pushNotification(message)
         # return response
 
-    def create(self, request, offerId, *args, **kwargs):
+    def create(self, request, offerId, userId, *args, **kwargs):
         _mutable = True
         try:
             _mutable = request.data._mutable
@@ -91,15 +92,20 @@ class MessageView(viewsets.ModelViewSet):
             pass
 
         request.data['offer'] = offerId
+        request.data['user'] = userId
 
         try:
             request.data._mutable = _mutable
         except:
             pass
         try:
-            Offer.objects.get(id=offerId)
+            offer = Offer.objects.get(id=offerId)
         except:
             return Response({'response': 'There is not any offer with this id'}, status=404)
+
+        if request.user.id != offer.house.owner.id and request.user.id != userId:
+            return Response({'response': 'You dont have permision for that'}, status=400)
+
         return super().create(request, *args, **kwargs)
         # response = super().create(request, *args, **kwargs)
         # if response.status_code == 200:

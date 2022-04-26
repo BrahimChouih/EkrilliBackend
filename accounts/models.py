@@ -18,7 +18,6 @@ def uploadImage(instance, fileName):
     return 'users/%s_pictuer_%s.%s' % (instance.id, name, extesion)
 
 
-
 class MyAccountManager(BaseUserManager):
     def create_user(self, email, username, password=None):
         if not email:
@@ -77,7 +76,8 @@ class Account(AbstractBaseUser):
     user_type = models.CharField(
         choices=USER_TYPE_OPTIONS, max_length=255, default='TENANT')
 
-    location = models.CharField(max_length=100, blank=True, null=True, default='')
+    location = models.CharField(
+        max_length=100, blank=True, null=True, default='')
 
     about_me = models.TextField(blank=True, null=True, default='')
 
