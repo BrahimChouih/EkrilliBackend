@@ -158,10 +158,3 @@ class Offer(models.Model):
     def __str__(self):
         return self.house.title + ((': '+self.user.username) if self.user != None else '')
 
-    # def save(self, *args, **kwargs):
-    #     if self.status == 'RENTED':
-    #         self.house.isAvailable = False
-    #     else:
-    #         self.house.isAvailable = True
-    #     self.house.save()
-    #     super().save(*args, **kwargs)
