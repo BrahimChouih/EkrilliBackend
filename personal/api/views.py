@@ -31,9 +31,9 @@ class FavoriteView(viewsets.ModelViewSet):
             pass
         try:
             Favorite.objects.get(
-                user=request.user.id, house=request.data['house'])
+                user=request.user.id, offer=request.data['offer'])
             return Response({
-                'response': 'This house already exist in your favorite'}, status=400)
+                'response': 'This offer already exist in your favorite'}, status=400)
         except:
             return super().create(request, *args, **kwargs)
 

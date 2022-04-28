@@ -45,6 +45,7 @@ class House(models.Model):
     bathrooms = models.IntegerField(default=1)
     kitchens = models.IntegerField(default=1)
     bedrooms = models.IntegerField(default=1)
+    location = models.CharField(max_length=100, default='', null=True)
     location_latitude = models.FloatField(default=0.0, null=True)
     location_longitude = models.FloatField(default=0.0, null=True)
     isAvailable = models.BooleanField(default=True)
@@ -147,7 +148,7 @@ class Offer(models.Model):
     )
     status = models.CharField(
         choices=STATUS_OPTIONS, max_length=100, default='PUBLISHED')
-    total_price = models.FloatField(default=0.0, null=False)
+    price_per_day = models.FloatField(default=0.0, null=False)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -157,4 +158,3 @@ class Offer(models.Model):
 
     def __str__(self):
         return self.house.title + ((': '+self.user.username) if self.user != None else '')
-
