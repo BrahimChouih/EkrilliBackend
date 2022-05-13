@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     HouseView,
     CityView,
+    MunicipalityView,
     OfferView,
     RatingView,
 )
@@ -48,6 +49,14 @@ urlpatterns = [
             'get': 'list',
         }),
         name='cities'
+    ),
+
+    path(
+        'municipalities/<int:cityId>/',
+        MunicipalityView.as_view({
+            'get': 'list',
+        }),
+        name='municipalities'
     ),
     path(
         'offers/',

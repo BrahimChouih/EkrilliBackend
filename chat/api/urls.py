@@ -12,13 +12,21 @@ urlpatterns = [
             'post': 'create',
         }),
         name='chat'
-    ),  
+    ),
     path(
         'new-message/new-offer/<int:userId>/',
         MessageView.as_view({
             'post': 'newMessageWithNewOffer',
         }),
         name='new message'
+    ),
+
+    path(
+        'chat/offers/',
+        MessageView.as_view({
+            'get': 'getOffersByMessages',
+        }),
+        name='chat'
     ),
 
 ]

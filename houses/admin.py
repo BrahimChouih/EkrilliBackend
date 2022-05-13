@@ -7,6 +7,7 @@ from .models import (
     House,
     Picture,
     City,
+    Municipality,
     Rating,
     Offer,
 )
@@ -41,6 +42,17 @@ class PictureAdmin(admin.ModelAdmin):
 
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
+    pass
+    # list_display = ('id',)
+    # list_display_links = ('id',)
+    # list_filter = ('city',)
+    # search_fields = ('sender__email',)
+
+    # def owner_(self, obj):
+    #     return userUrl(obj.semder)
+
+@admin.register(Municipality)
+class MunicipalityAdmin(admin.ModelAdmin):
     pass
     # list_display = ('id',)
     # list_display_links = ('id',)

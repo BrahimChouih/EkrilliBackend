@@ -29,7 +29,7 @@ def uploadImage(instance, fileName):
 
 class House(models.Model):
     owner = models.ForeignKey(to=Account, null=False, on_delete=models.CASCADE)
-    city = models.ForeignKey(to='City', null=False,
+    municipality = models.ForeignKey(to='municipality', null=False,
                              on_delete=models.DO_NOTHING)
 
     HOUSE_TYPE_OPTIONS = (
@@ -101,6 +101,17 @@ class City(models.Model):
         except:
             pass
         return super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class Municipality(models.Model):
+    name = models.CharField(max_length=30, null=False)
+    city = models.ForeignKey(to='City', null=False,
+                             on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = 'Municipalities'
 
     def __str__(self):
         return self.name

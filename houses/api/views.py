@@ -1,3 +1,4 @@
+from time import sleep
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -12,6 +13,7 @@ from houses.api.serializers import (
     HouseSerializer,
     PictureSerializer,
     CitySerializer,
+    MunicipalitySerializer,
     OfferSerializer,
     RatingSerializer,
 )
@@ -20,6 +22,7 @@ from houses.models import (
     House,
     Picture,
     City,
+    Municipality,
     Offer,
     Rating,
 )
@@ -38,7 +41,7 @@ class HouseView(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
     def getHouseByCity(self, request, city):
-        houses = House.objects.filter(city=city, isAvailable=True)
+        houses = House.objects.filter(municipality__city=city, isAvailable=True)
         page = self.paginate_queryset(houses)
         # sleep(2)
         if page is not None:
@@ -120,6 +123,18 @@ class CityView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = None
 
+class MunicipalityView(viewsets.ModelViewSet):
+    queryset = Municipality.objects.all()
+    serializer_class = MunicipalitySerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def list(self, request,cityId, *args, **kwargs):
+        municipality = Municipality.objects.filter(city=cityId)
+        serializer = MunicipalitySerializer(municipality,many=True)
+        return Response(serializer.data)
+    
+
 
 class OfferView(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
@@ -127,7 +142,7 @@ class OfferView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def getOffersByCity(self, request, city):
-        offers = Offer.objects.filter(house__city=city, status='PUBLISHED')
+        offers = Offer.objects.filter(house__municipality__city=city, status='PUBLISHED')
         page = self.paginate_queryset(offers)
         # sleep(2)
         if page is not None:

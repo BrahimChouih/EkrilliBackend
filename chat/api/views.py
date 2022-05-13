@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.authtoken.models import Token
+from django.db.models import Count
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import viewsets
@@ -51,6 +52,13 @@ class MessageView(viewsets.ModelViewSet):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+
+    def getOffersByMessages(self, request):
+        offersIds = Message.objects.values('offer').filter(user__id=request.user.id).annotate(cont=Count('id'))
+        offersIds = list(offersIds)
+        offers = Offer.objects.filter(id__in=[i['offer'] for i in offersIds])
+        serializer = OfferSerializer(offers,many=True)
+        return Response(serializer.data)
 
     def newMessageWithNewOffer(self, request, userId, *args, **kwargs):
         offerData = request.data['offer']
