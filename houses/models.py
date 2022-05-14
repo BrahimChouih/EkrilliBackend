@@ -45,7 +45,6 @@ class House(models.Model):
     bathrooms = models.IntegerField(default=1)
     kitchens = models.IntegerField(default=1)
     bedrooms = models.IntegerField(default=1)
-    location = models.CharField(max_length=100, default='', null=True)
     location_latitude = models.FloatField(default=0.0, null=True)
     location_longitude = models.FloatField(default=0.0, null=True)
     isAvailable = models.BooleanField(default=True)
