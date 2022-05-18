@@ -7,12 +7,14 @@ from django.db.models import Count
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import viewsets
-from chat.api.serializers import MessageSerializer
+from rest_framework.pagination import PageNumberPagination
+from chat.api.serializers import ChatItemSerializer, MessageSerializer
 from chat import firebase_messaging_helper as firebaseMC
 
 from chat.models import Message
 from houses.api.serializers import OfferSerializer
 from houses.models import Offer
+
 
 
 # def pushNotification(message):
@@ -36,10 +38,16 @@ from houses.models import Offer
 #     )
 
 
+class ChatPagination(PageNumberPagination):
+    page_size = 40
+    page_size_query_param = 'page_size'
+    max_page_size = 40
+
 class MessageView(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = ChatPagination
 
     def getConversation(self, request, offerId, userId):
         try:
@@ -53,11 +61,16 @@ class MessageView(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    def getOffersByMessages(self, request):
-        offersIds = Message.objects.values('offer').filter(user__id=request.user.id).annotate(cont=Count('id'))
-        offersIds = list(offersIds)
-        offers = Offer.objects.filter(id__in=[i['offer'] for i in offersIds])
-        serializer = OfferSerializer(offers,many=True)
+    def getChatItem(self, request):
+        messagesByUser = Message.objects.values('offer', 'user').filter(
+            user__id=request.user.id).annotate(cont=Count('id'))
+
+        messagesByOffer = Message.objects.values('offer', 'user').filter(
+            offer__house__owner__id=request.user.id).annotate(cont=Count('id'))
+
+        messages = messagesByOffer | messagesByUser
+        serializer = ChatItemSerializer(messages, many=True)
+
         return Response(serializer.data)
 
     def newMessageWithNewOffer(self, request, userId, *args, **kwargs):

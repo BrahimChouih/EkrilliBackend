@@ -20,6 +20,16 @@ urlpatterns = [
         }),
         name='houses'
     ),
+
+    path(
+        'myhouses/',
+        HouseView.as_view({
+            'get': 'getMyHouses',
+       
+        }),
+        name='houses'
+    ),
+
     path(
         'houses/<int:pk>/',
         HouseView.as_view({

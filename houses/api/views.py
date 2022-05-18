@@ -39,6 +39,13 @@ class HouseView(viewsets.ModelViewSet):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+        
+    def getMyHouses(self, request, *args, **kwargs):
+        page = self.paginate_queryset(House.objects.filter(owner__id=request.user.id))
+        # sleep(2)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
     def getHouseByCity(self, request, city):
         houses = House.objects.filter(municipality__city=city, isAvailable=True)

@@ -22,9 +22,9 @@ urlpatterns = [
     ),
 
     path(
-        'chat/offers/',
+        'chat/items/',
         MessageView.as_view({
-            'get': 'getOffersByMessages',
+            'get': 'getChatItem',
         }),
         name='chat'
     ),
