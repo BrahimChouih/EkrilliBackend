@@ -151,8 +151,8 @@ class Offer(models.Model):
 
     STATUS_OPTIONS = (
         ('PUBLISHED', 'PUBLISHED'),
-        ('NEGOTIATE', 'NEGOTIATE'),
-        # ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
+        # ('NEGOTIATE', 'NEGOTIATE'),
+        ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
         ('RENTED', 'RENTED'),
         ('DONE', 'DONE'),
     )

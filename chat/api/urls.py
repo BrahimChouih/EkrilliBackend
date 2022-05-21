@@ -29,4 +29,12 @@ urlpatterns = [
         name='chat'
     ),
 
+    path(
+        'chat/offer/sended/<int:offerId>/<int:userId>/',
+        MessageView.as_view({
+            'get': 'getChatOfferSended',
+        }),
+        name='chat'
+    ),
+
 ]

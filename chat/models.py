@@ -34,6 +34,7 @@ class Message(models.Model):
     CONTENT_TYPE_OPTIONS = (
         ('MESSAGE', 'MESSAGE'),
         ('ACTION', 'ACTION'),
+        ('OFFER_INFO', 'OFFER_INFO'),
         ('IMAGE', 'IMAGE'),
     )
     content_type = models.CharField(

@@ -1,8 +1,5 @@
-from turtle import title
-from rest_framework import status
+import json
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.authtoken.models import Token
 from django.db.models import Count
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -14,7 +11,6 @@ from chat import firebase_messaging_helper as firebaseMC
 from chat.models import Message
 from houses.api.serializers import OfferSerializer
 from houses.models import Offer
-
 
 
 # def pushNotification(message):
@@ -42,6 +38,7 @@ class ChatPagination(PageNumberPagination):
     page_size = 40
     page_size_query_param = 'page_size'
     max_page_size = 40
+
 
 class MessageView(viewsets.ModelViewSet):
     queryset = Message.objects.all()
@@ -72,6 +69,25 @@ class MessageView(viewsets.ModelViewSet):
         serializer = ChatItemSerializer(messages, many=True)
 
         return Response(serializer.data)
+
+    def getChatOfferSended(self, request, offerId, userId):
+        messageAsList = Message.objects.filter(
+            offer=offerId, user=userId, content_type='OFFER_INFO')
+        if(len(messageAsList) == 0):
+            return Response({'response': 'there isn\'t offer information here'})
+        message = messageAsList[0]
+        serialzer = MessageSerializer(message)
+        offerSended = json.loads(message.message)
+
+        data = {
+            "offer": serialzer.data["offer"],
+            "user": serialzer.data["user"],
+            "message_id": serialzer.data["id"],
+            "start_date": offerSended["start_date"],
+            "end_date": offerSended["end_date"],
+        }
+        
+        return Response(data)
 
     def newMessageWithNewOffer(self, request, userId, *args, **kwargs):
         offerData = request.data['offer']
