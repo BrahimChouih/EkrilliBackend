@@ -4,10 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
 
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+
 from django.forms import model_to_dict
 from django.db.models import Q
 
 from accounts.models import Account
+from chat.models import Message
 
 from houses.api.serializers import (
     HouseSerializer,
@@ -39,16 +43,18 @@ class HouseView(viewsets.ModelViewSet):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        
+
     def getMyHouses(self, request, *args, **kwargs):
-        page = self.paginate_queryset(House.objects.filter(owner__id=request.user.id))
+        page = self.paginate_queryset(
+            House.objects.filter(owner__id=request.user.id))
         # sleep(2)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
     def getHouseByCity(self, request, city):
-        houses = House.objects.filter(municipality__city=city, isAvailable=True)
+        houses = House.objects.filter(
+            municipality__city=city, isAvailable=True)
         page = self.paginate_queryset(houses)
         # sleep(2)
         if page is not None:
@@ -75,7 +81,8 @@ class HouseView(viewsets.ModelViewSet):
             Picture.objects.create(
                 house_id=data['id'], picture=request.FILES[f'pictures[{i}][picture]'])
 
-        serializer = HouseSerializer(House.objects.get(id=data['id']),many=False)
+        serializer = HouseSerializer(
+            House.objects.get(id=data['id']), many=False)
         return Response(serializer.data)
 
     def getHouseInfo(self, request, pk, *args, **kwargs):
@@ -97,7 +104,7 @@ class HouseView(viewsets.ModelViewSet):
         for i in range(len(request.FILES)):
             Picture.objects.create(
                 house_id=house.id, picture=request.FILES[f'pictures[{i}][picture]'])
-                
+
         return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, pk, *args, **kwargs):
@@ -130,17 +137,17 @@ class CityView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = None
 
+
 class MunicipalityView(viewsets.ModelViewSet):
     queryset = Municipality.objects.all()
     serializer_class = MunicipalitySerializer
     permission_classes = [AllowAny]
     pagination_class = None
 
-    def list(self, request,cityId, *args, **kwargs):
+    def list(self, request, cityId, *args, **kwargs):
         municipality = Municipality.objects.filter(city=cityId)
-        serializer = MunicipalitySerializer(municipality,many=True)
+        serializer = MunicipalitySerializer(municipality, many=True)
         return Response(serializer.data)
-    
 
 
 class OfferView(viewsets.ModelViewSet):
@@ -149,7 +156,8 @@ class OfferView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def getOffersByCity(self, request, city):
-        offers = Offer.objects.filter(house__municipality__city=city, status='PUBLISHED')
+        offers = Offer.objects.filter(
+            Q(status='PUBLISHED', house__municipality__city=city) | Q(status='WAITING_FOR_ACCEPTE', house__municipality__city=city))
         page = self.paginate_queryset(offers)
         # sleep(2)
         if page is not None:
@@ -157,7 +165,8 @@ class OfferView(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        offers = Offer.objects.filter(status='PUBLISHED')
+        offers = Offer.objects.filter(
+            Q(status='PUBLISHED') | Q(status='WAITING_FOR_ACCEPTE'))
         page = self.paginate_queryset(offers)
         # sleep(2)
         if page is not None:
@@ -202,16 +211,37 @@ class OfferView(viewsets.ModelViewSet):
             return Response({'response': 'There is not any offer with this id'}, status=404)
 
         status = request.data['status']
+        user = Account.objects.get(id=request.data['user'])
+
+        # just owner can change status to ranted
+        if(status == 'RENTED' and request.user.id != offer.house.owner.id):
+            return Response({'response': 'You dont have permision for that'}, status=400)
+
+        # virfiy if satuts is Watting for accept befor change it to ranted
+        if (status == 'RENTED' and offer.status != 'WAITING_FOR_ACCEPTE'):
+            return Response({'response': 'You have to wait for the user to accept this'}, status=400)
+
+        # put user id into this offer
+        if status == 'RENTED':
+            offer.user = user
+            start_date = make_aware(parse_datetime(request.data['start_date']))
+            end_date = make_aware(parse_datetime(request.data['end_date']))
+            offer.start_date = start_date
+            offer.end_date = end_date
+
         offer.status = status
 
-        if request.data['user'] != None:
-            user = Account.objects.get(id=request.data['user'])
-            offer.user = user
-
-        print(type(offer.__dict__))
         serializer = OfferSerializer(data=model_to_dict(offer))
         if(serializer.is_valid()):
             offer.save()
+            message = Message(user=user,
+                              offer=offer,
+                              message=status,
+                              content_type='ACTION',
+                              message_type=(
+                                  'RESPONSE' if offer.house.owner.id == request.user.id else 'REQUEST')
+                              )
+            message.save()
             return Response({'response': 'change status value to %s' % status}, status=200)
         return Response(serializer.error_messages, status=400)
 

@@ -80,9 +80,7 @@ class MessageView(viewsets.ModelViewSet):
         offerSended = json.loads(message.message)
 
         data = {
-            "offer": serialzer.data["offer"],
-            "user": serialzer.data["user"],
-            "message_id": serialzer.data["id"],
+            "message": serialzer.data,
             "start_date": offerSended["start_date"],
             "end_date": offerSended["end_date"],
         }
