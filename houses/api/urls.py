@@ -113,6 +113,14 @@ urlpatterns = [
     ),
 
     path(
+        'offers/house/<int:houseId>/',
+        OfferView.as_view({
+            'get': 'getOffersForHouse',
+        }),
+        name='offers'
+    ),
+
+    path(
         'offers/search/',
         SearchView.as_view({
             'get': 'search',

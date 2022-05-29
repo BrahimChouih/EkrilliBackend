@@ -154,6 +154,13 @@ class OfferView(viewsets.ModelViewSet):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    def create(self, request, *args, **kwargs):
+        try:
+            Offer.objects.get(house__id=request.data['house'])
+            return Response({'response':'There is an offer in this house'},status=400)
+        except:
+            pass
+        return super().create(request, *args, **kwargs)
 
     def getOffersByCity(self, request, city):
         offers = Offer.objects.filter(
@@ -173,10 +180,10 @@ class OfferView(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    def getOffersForMyHouses(self, request):
-        offers = Offer.objects.filter(house__owner__id=request.user.id)
+    def getOffersForHouse(self, request, houseId):
+        offers = Offer.objects.filter(house__id=houseId)
         serializer = OfferSerializer(offers, many=True)
-        return Response(serializer.data, status=200)
+        return Response({'results': serializer.data}, status=200)
 
     def getMyOffers(self, request):
         # offers = Offer.objects.filter(user=request.user.id)
@@ -293,14 +300,12 @@ class SearchView(viewsets.ModelViewSet):
         search = ''
         cityId = None
         try:
-            orderBy =  request.query_params['order_by']
-            if orderBy != 'price_per_day' and orderBy!='-price_per_day':
+            orderBy = request.query_params['order_by']
+            if orderBy != 'price_per_day' and orderBy != '-price_per_day':
                 if orderBy[0] == '-':
                     orderBy = "-house__" + orderBy[1:len(orderBy)]
                 else:
                     orderBy = "house__" + orderBy
-            
-
 
         except:
             pass
