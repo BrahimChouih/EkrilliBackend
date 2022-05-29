@@ -6,6 +6,7 @@ from .views import (
     MunicipalityView,
     OfferView,
     RatingView,
+    SearchView,
 )
 
 
@@ -107,6 +108,14 @@ urlpatterns = [
         'offers-for-me/',
         OfferView.as_view({
             'get': 'getMyOffers',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/search/',
+        SearchView.as_view({
+            'get': 'search',
         }),
         name='offers'
     ),

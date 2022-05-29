@@ -19,7 +19,8 @@ class HouseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['owner'] = AccountSerializer(instance.owner).data
-        rep['municipality'] = MunicipalitySerializer(instance.municipality).data
+        rep['municipality'] = MunicipalitySerializer(
+            instance.municipality).data
         pictures = Picture.objects.filter(house=instance.id)
         rep['pictures'] = PictureSerializer(pictures, many=True).data
         return rep
@@ -38,11 +39,13 @@ class CitySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # exclude = ('',)
 
+
 class MunicipalitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipality
         fields = '__all__'
         # exclude = ('',)
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['city'] = CitySerializer(instance.city).data

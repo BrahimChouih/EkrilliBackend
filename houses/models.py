@@ -30,7 +30,7 @@ def uploadImage(instance, fileName):
 class House(models.Model):
     owner = models.ForeignKey(to=Account, null=False, on_delete=models.CASCADE)
     municipality = models.ForeignKey(to='municipality', null=False,
-                             on_delete=models.DO_NOTHING)
+                                     on_delete=models.DO_NOTHING)
 
     HOUSE_TYPE_OPTIONS = (
         ('VILLA', 'VILLA'),
@@ -103,6 +103,7 @@ class City(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Municipality(models.Model):
     name = models.CharField(max_length=30, null=False)

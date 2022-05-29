@@ -280,3 +280,51 @@ class RatingView(viewsets.ModelViewSet):
             return Response({'response': 'You dont have permision for that'}, status=400)
 
         return super().create(request, *args, **kwargs)
+
+
+class SearchView(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+
+    def search(self, request):
+        # sleep(2)
+        orderBy = 'created_at'
+        search = ''
+        cityId = None
+        try:
+            orderBy =  request.query_params['order_by']
+            if orderBy != 'price_per_day' and orderBy!='-price_per_day':
+                if orderBy[0] == '-':
+                    orderBy = "-house__" + orderBy[1:len(orderBy)]
+                else:
+                    orderBy = "house__" + orderBy
+            
+
+
+        except:
+            pass
+
+        try:
+            search = request.query_params['search']
+        except:
+            pass
+
+        try:
+            cityId = request.query_params['city']
+        except:
+            pass
+
+        if(cityId != None):
+            queryset = Offer.objects.filter(Q(house__title__contains=search, house__municipality__city__id=cityId) | Q(
+                house__description__contains=search, house__municipality__city__id=cityId)).order_by(orderBy)
+        else:
+            queryset = Offer.objects.filter(Q(house__title__contains=search) | Q(
+                house__description__contains=search)).order_by(orderBy)
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = OfferSerializer(page, many=True)
+            data = serializer.data
+
+            return self.get_paginated_response(data)
