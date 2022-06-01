@@ -54,6 +54,7 @@ class House(models.Model):
 
     class Meta:
         db_table = 'Houses'
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title
@@ -128,7 +129,7 @@ class Rating(models.Model):
         db_table = 'Rating'
 
     def __str__(self):
-        return self.offer.user.username + " on "+self.offer.house.title
+        return ((self.offer.user.username + " on ") if self.offer.user != None else '') +self.offer.house.title
 
     def save(self, *args, **kwargs):
         self.offer.house.stars += self.stars

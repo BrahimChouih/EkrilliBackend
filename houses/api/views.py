@@ -164,7 +164,7 @@ class OfferView(viewsets.ModelViewSet):
 
     def getOffersByCity(self, request, city):
         offers = Offer.objects.filter(
-            Q(status='PUBLISHED', house__municipality__city=city) | Q(status='WAITING_FOR_ACCEPTE', house__municipality__city=city))
+            Q(status='PUBLISHED', house__municipality__city=city) | Q(status='WAITING_FOR_ACCEPTE', house__municipality__city=city)).order_by('-created_at')
         page = self.paginate_queryset(offers)
         # sleep(2)
         if page is not None:
@@ -173,7 +173,7 @@ class OfferView(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         offers = Offer.objects.filter(
-            Q(status='PUBLISHED') | Q(status='WAITING_FOR_ACCEPTE'))
+            Q(status='PUBLISHED') | Q(status='WAITING_FOR_ACCEPTE')).order_by('-created_at')
         page = self.paginate_queryset(offers)
         # sleep(2)
         if page is not None:
