@@ -156,7 +156,7 @@ class OfferView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def create(self, request, *args, **kwargs):
         try:
-            Offer.objects.get(house__id=request.data['house'])
+            Offer.objects.get(house__id=request.data['house'],status='PUBLISHED')
             return Response({'response':'There is an offer in this house'},status=400)
         except:
             pass
@@ -321,11 +321,12 @@ class SearchView(viewsets.ModelViewSet):
             pass
 
         if(cityId != None):
-            queryset = Offer.objects.filter(Q(house__title__contains=search, house__municipality__city__id=cityId) | Q(
-                house__description__contains=search, house__municipality__city__id=cityId)).order_by(orderBy)
+            queryset = Offer.objects.filter(
+                Q(house__title__contains=search, house__municipality__city__id=cityId,status='PUBLISHED') | 
+                Q(house__description__contains=search, house__municipality__city__id=cityId,status='WAITING_FOR_ACCEPTE')).order_by(orderBy)
         else:
-            queryset = Offer.objects.filter(Q(house__title__contains=search) | Q(
-                house__description__contains=search)).order_by(orderBy)
+            queryset = Offer.objects.filter(Q(house__title__contains=search,status='PUBLISHED') | Q(
+                house__description__contains=search,status='WAITING_FOR_ACCEPTE')).order_by(orderBy)
         page = self.paginate_queryset(queryset)
 
         if page is not None:
