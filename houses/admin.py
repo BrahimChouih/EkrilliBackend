@@ -83,11 +83,10 @@ class RatingAdmin(admin.ModelAdmin):
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ('id',)
-    # list_display_links = ('id',)
-    # list_filter = ('city',)
+    list_display = ('offer_','status','price_per_day')
+    # list_display_links = ('house_',)
+    list_filter = ('status',)
     # search_fields = ('sender__email',)
 
-    # def owner_(self, obj):
-    #     return userUrl(obj.semder)
+    def offer_(self, obj):
+        return obj.house.title
