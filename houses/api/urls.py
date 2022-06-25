@@ -6,6 +6,7 @@ from .views import (
     MunicipalityView,
     OfferView,
     RatingView,
+    SearchView,
 )
 
 
@@ -20,6 +21,16 @@ urlpatterns = [
         }),
         name='houses'
     ),
+
+    path(
+        'myhouses/',
+        HouseView.as_view({
+            'get': 'getMyHouses',
+       
+        }),
+        name='houses'
+    ),
+
     path(
         'houses/<int:pk>/',
         HouseView.as_view({
@@ -97,6 +108,22 @@ urlpatterns = [
         'offers-for-me/',
         OfferView.as_view({
             'get': 'getMyOffers',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/house/<int:houseId>/',
+        OfferView.as_view({
+            'get': 'getOffersForHouse',
+        }),
+        name='offers'
+    ),
+
+    path(
+        'offers/search/',
+        SearchView.as_view({
+            'get': 'search',
         }),
         name='offers'
     ),

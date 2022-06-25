@@ -30,7 +30,7 @@ def uploadImage(instance, fileName):
 class House(models.Model):
     owner = models.ForeignKey(to=Account, null=False, on_delete=models.CASCADE)
     municipality = models.ForeignKey(to='municipality', null=False,
-                             on_delete=models.DO_NOTHING)
+                                     on_delete=models.DO_NOTHING)
 
     HOUSE_TYPE_OPTIONS = (
         ('VILLA', 'VILLA'),
@@ -54,6 +54,7 @@ class House(models.Model):
 
     class Meta:
         db_table = 'Houses'
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title
@@ -104,6 +105,7 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
+
 class Municipality(models.Model):
     name = models.CharField(max_length=30, null=False)
     city = models.ForeignKey(to='City', null=False,
@@ -127,7 +129,7 @@ class Rating(models.Model):
         db_table = 'Rating'
 
     def __str__(self):
-        return self.offer.user.username + " on "+self.offer.house.title
+        return ((self.offer.user.username + " on ") if self.offer.user != None else '') +self.offer.house.title
 
     def save(self, *args, **kwargs):
         self.offer.house.stars += self.stars
@@ -151,8 +153,8 @@ class Offer(models.Model):
 
     STATUS_OPTIONS = (
         ('PUBLISHED', 'PUBLISHED'),
-        ('NEGOTIATE', 'NEGOTIATE'),
-        # ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
+        # ('NEGOTIATE', 'NEGOTIATE'),
+        ('WAITING_FOR_ACCEPTE', 'WAITING_FOR_ACCEPTE'),
         ('RENTED', 'RENTED'),
         ('DONE', 'DONE'),
     )

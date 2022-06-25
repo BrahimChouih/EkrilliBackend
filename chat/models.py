@@ -2,7 +2,9 @@ from datetime import datetime
 from django.db import models
 from django.utils import timezone
 from accounts.models import Account
+from chat.firebase_messaging_helper import pushNotification
 from houses.models import Offer
+from chat import api
 # Create your models here.
 
 
@@ -34,6 +36,7 @@ class Message(models.Model):
     CONTENT_TYPE_OPTIONS = (
         ('MESSAGE', 'MESSAGE'),
         ('ACTION', 'ACTION'),
+        ('OFFER_INFO', 'OFFER_INFO'),
         ('IMAGE', 'IMAGE'),
     )
     content_type = models.CharField(
@@ -54,6 +57,18 @@ class Message(models.Model):
         if(not self.id):
             self.create_at = timezone.now()
         super().save(*args, **kwargs)
+        data = api.serializers.MessageSerializer(self).data
+        if(self.message_type=='REQUEST'):
+            receiver = self.offer.house.owner
+            sender = self.user
+        else:
+            receiver = self.user
+            sender = self.offer.house.owner
+        pushNotification(
+            title=sender.username,
+            notificationData=data,
+            userId=receiver.id,
+        )
         return self
 
     def delete(self, *args, **kwargs):
