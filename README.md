@@ -1,6 +1,6 @@
 # Ekrilli Backend
 
-
+![Alt text](/screenshots/mockup.jpg?raw=true)
 
 ## Source code url
 
