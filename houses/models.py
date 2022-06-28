@@ -134,7 +134,9 @@ class Rating(models.Model):
     def save(self, *args, **kwargs):
         self.offer.house.stars += self.stars
         self.offer.house.numReviews += 1
+        self.offer.rated = True
         self.offer.house.save()
+        self.offer.save()
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -161,6 +163,7 @@ class Offer(models.Model):
     status = models.CharField(
         choices=STATUS_OPTIONS, max_length=100, default='PUBLISHED')
     price_per_day = models.FloatField(default=0.0, null=False)
+    rated = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
